@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveStateToLocalStorage();
         } else {
             // This was the last task
-            showCustomAlert('Congratulations!', `You've completed the Cyber Trap Room! Your final score is ${score}/${totalQuestions}. Keep an eye out for phishing attempts!`);
+            showCustomAlert('Congratulations!', `You've completed the Phishing Awareness course. Your final score is ${score}/${totalQuestions}. Keep an eye out for phishing attempts!`);
         }
     }
     
