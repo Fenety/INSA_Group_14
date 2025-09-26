@@ -1,12 +1,11 @@
-// src/utils/response.js
-function formatResponse({ risk_score = 0, reasons = [], recommendation = '', intel = {} } = {}) {
-  // ensure types are sane
-  return {
-    risk_score: Number(risk_score),
-    reasons: Array.isArray(reasons) ? reasons : [String(reasons)],
-    recommendation: String(recommendation),
-    intel: intel || {}
-  };
+function formatResponse({ risk_score, reasons, recommendation, intel }) {
+  // Dynamic recommendation based on risk score
+  let rec = '';
+  if (risk_score >= 80) rec = 'Do NOT click or trust this link/email';
+  else if (risk_score >= 50) rec = 'Proceed with caution; verify first';
+  else rec = 'Likely safe, but stay alert';
+
+  return { risk_score, reasons, recommendation: rec, intel };
 }
 
 module.exports = { formatResponse };
