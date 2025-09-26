@@ -1,3 +1,4 @@
+// Custom logger with timestamp and request ID
 const log = (level, message, requestId = null) => {
   const timestamp = new Date().toISOString();
   const id = requestId ? `[${requestId}]` : '';

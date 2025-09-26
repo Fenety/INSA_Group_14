@@ -1,100 +1,73 @@
-// src/services/heuristics.js
-
-const suspiciousTLDs = ['.xyz', '.top', '.ru', '.cn', '.tk'];
-const phishingKeywords = ['login', 'secure', 'update', 'verify', 'bank', 'account', 'password'];
-
-// --- URL analysis ---
-function analyzeURL(url) {
-  const reasons = [];
-  let score = 0;
-
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname;
-
-    // Long URL
-    if (url.length > 75) {
-      reasons.push('Very long URL (>75 chars)');
-      score += 15;
-    }
-
-    // IP address in domain
-    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
-      reasons.push('Domain is an IP address');
-      score += 20;
-    }
-
-    // Suspicious TLD
-    suspiciousTLDs.forEach(tld => {
-      if (hostname.endsWith(tld)) {
-        reasons.push(`Suspicious TLD detected (${tld})`);
-        score += 20;
-      }
-    });
-
-    // Too many subdomains
-    const subdomains = hostname.split('.');
-    if (subdomains.length > 3) {
-      reasons.push('Too many subdomains');
-      score += 10;
-    }
-
-    // Phishing keywords
-    phishingKeywords.forEach(word => {
-      if (url.toLowerCase().includes(word)) {
-        reasons.push(`Contains phishing keyword: "${word}"`);
-        score += 15;
-      }
-    });
-
-    // Cap risk score at 100
-    score = Math.min(score, 100);
-
-    return { risk_score: score, reasons, intel: { hostname, length: url.length } };
-
-  } catch (err) {
-    return { risk_score: 100, reasons: ['Invalid URL format'], intel: {} };
-  }
+// Heuristic analysis + risk scoring + intel info
+function getRiskLevel(risk_score) {
+  if (risk_score <= 30) return 'Low';
+  if (risk_score <= 70) return 'Medium';
+  return 'High';
 }
 
-// --- Email analysis ---
-function analyzeEmail(email) {
-  const { from, subject = '', headers = {}, body = '' } = email;
+function analyzeURL(url) {
+  let risk_score = 0;
   const reasons = [];
-  let score = 0;
+  const intel = {};
 
-  // SPF/DKIM/DMARC checks
-  if (headers['Received-SPF']?.toLowerCase().includes('fail')) {
-    reasons.push('SPF check failed');
-    score += 20;
-  }
-  if (headers['Authentication-Results']?.toLowerCase().includes('dkim=fail')) {
-    reasons.push('DKIM check failed');
-    score += 20;
-  }
-  if (headers['Authentication-Results']?.toLowerCase().includes('dmarc=fail')) {
-    reasons.push('DMARC check failed');
-    score += 20;
-  }
+  // Long URL
+  if (url.length > 75) { risk_score += 15; reasons.push('URL is very long'); }
 
-  // Suspicious sender
-  if (from && from.includes('@gmail.com') && subject.toLowerCase().includes('bank')) {
-    reasons.push('Free email provider used for banking-related message');
-    score += 15;
-  }
+  // IP in domain
+  const ipRegex = /https?:\/\/(\d{1,3}\.){3}\d{1,3}/;
+  if (ipRegex.test(url)) { risk_score += 30; reasons.push('IP address in domain'); intel.suspicious_ip = url.match(ipRegex); }
 
-  // Phishing keywords in subject/body
-  phishingKeywords.forEach(word => {
-    if (subject.toLowerCase().includes(word) || body.toLowerCase().includes(word)) {
-      reasons.push(`Suspicious keyword in email: "${word}"`);
-      score += 10;
+  // Suspicious TLDs
+  const suspiciousTLDs = ['.xyz', '.top', '.club', '.online'];
+  if (suspiciousTLDs.some(tld => url.endsWith(tld))) { risk_score += 20; reasons.push('Suspicious TLD'); intel.suspicious_tld = url.split('.').pop(); }
+
+  // Many subdomains
+  const host = url.split('//')[1]?.split('/')[0] || '';
+  const subdomainCount = host.split('.').length - 2;
+  if (subdomainCount > 3) { risk_score += 10; reasons.push('Too many subdomains'); intel.subdomain_count = subdomainCount; }
+
+  // Phishing keywords
+  const keywords = ['login', 'secure', 'update', 'bank', 'verify'];
+  const foundKeywords = keywords.filter(k => url.toLowerCase().includes(k));
+  if (foundKeywords.length > 0) { risk_score += 25; reasons.push('Contains phishing keywords'); intel.keywords = foundKeywords; }
+
+  if (risk_score > 100) risk_score = 100;
+
+  const risk_level = getRiskLevel(risk_score);
+  return { risk_score, risk_level, reasons, intel };
+}
+
+function analyzeEmail({ from, subject, body, headers }) {
+  let risk_score = 0;
+  const reasons = [];
+  const intel = {};
+
+  // Keywords in email
+  const keywords = ['urgent', 'verify', 'password', 'bank', 'login'];
+  const foundKeywords = keywords.filter(k => (subject + body).toLowerCase().includes(k));
+  if (foundKeywords.length > 0) { risk_score += 20; reasons.push('Contains phishing keywords'); intel.keywords = foundKeywords; }
+
+  // Sender domain mismatch (example)
+  if (!from.includes('@trusted.com')) { risk_score += 25; reasons.push('Sender domain mismatch'); intel.sender = from; }
+
+  // Suspicious links
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  const urls = body.match(urlRegex) || [];
+  const suspiciousUrls = [];
+  urls.forEach(url => {
+    const urlResult = analyzeURL(url);
+    if (urlResult.risk_score > 50) {
+      risk_score += 25;
+      reasons.push('Contains suspicious links');
+      suspiciousUrls.push(url);
     }
   });
+  if (suspiciousUrls.length > 0) intel.suspicious_urls = suspiciousUrls;
 
-  // Cap risk score at 100
-  score = Math.min(score, 100);
+  if (risk_score > 100) risk_score = 100;
 
-  return { risk_score: score, reasons, intel: { from, subject } };
+  const risk_level = getRiskLevel(risk_score);
+  return { risk_score, risk_level, reasons, intel };
 }
 
 module.exports = { analyzeURL, analyzeEmail };
