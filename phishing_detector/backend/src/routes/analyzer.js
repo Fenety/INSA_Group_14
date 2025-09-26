@@ -5,6 +5,7 @@ const router = express.Router();
 const { formatResponse } = require('../utils/response');
 const { analyzeURL, analyzeEmail } = require('../services/heuristics');
 const ScanResult = require('../models/ScanResult');
+const { info, error } = require('../utils/logger');
 
 // --- URL analysis ---
 router.post('/analyze_url', async (req, res) => {
@@ -108,6 +109,19 @@ router.get('/history', async (req, res) => {
         console.error('Failed to fetch history:', err);
         res.status(500).json({ error: 'Failed to fetch history' });
     }
+});
+
+router.post('/analyze_url', async (req, res) => {
+  const { url } = req.body;
+  info(`Received URL scan request: ${url}`, req.requestId);
+
+  try {
+    const result = analyzeURL(url);
+    res.json(result);
+  } catch (err) {
+    error(`URL analysis failed: ${err.message}`, req.requestId);
+    res.status(500).json({ error: 'Internal server error', requestId: req.requestId });
+  }
 });
 
 module.exports = router;
