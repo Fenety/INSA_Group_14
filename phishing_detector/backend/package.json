@@ -2,12 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
   "keywords": [],
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
@@ -18,9 +17,9 @@
     "mongoose": "^8.18.2",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.6",
-    "uuid": "^13.0.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "dev": "nodemon src/index.js"
+    "nodemon": "^3.1.10"
   }
 }
