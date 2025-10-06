@@ -1,5 +1,9 @@
-function formatResponse({ risk_score, risk_level, reasons, recommendation, intel }) {
-  return { risk_score, risk_level, reasons, recommendation, intel };
+function successResponse(code = 'ok', data = {}) {
+  return { success: true, code, data };
 }
 
-module.exports = { formatResponse };
+function errorResponse(code = 'error', message = '') {
+  return { success: false, code, message };
+}
+
+module.exports = { successResponse, errorResponse };

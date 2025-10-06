@@ -1,12 +1,16 @@
-// Custom logger with timestamp and request ID
-const log = (level, message, requestId = null) => {
-  const timestamp = new Date().toISOString();
-  const id = requestId ? `[${requestId}]` : '';
-  console.log(`${timestamp} ${level.toUpperCase()} ${id}: ${message}`);
-};
+// minimal logger abstraction using console (can be swapped for winston)
+const env = require('../config/env');
 
-const info = (msg, requestId) => log('info', msg, requestId);
-const warn = (msg, requestId) => log('warn', msg, requestId);
-const error = (msg, requestId) => log('error', msg, requestId);
+function info(...args) {
+  if (['info', 'debug'].includes(env.LOG_LEVEL)) console.log('[INFO]', ...args);
+}
 
-module.exports = { info, warn, error };
+function debug(...args) {
+  if (env.LOG_LEVEL === 'debug') console.log('[DEBUG]', ...args);
+}
+
+function error(...args) {
+  console.error('[ERROR]', ...args);
+}
+
+module.exports = { info, debug, error };
