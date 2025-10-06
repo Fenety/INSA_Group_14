@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+*.env
+
+# Node.js
+node_modules/
+dist/
+build/
+
+# Data / Models (optional)
+*.h5
+*.pkl
+*.joblib
+*.csv
+*.npy
+*.npz
+
+# OS
+.DS_Store
+Thumbs.db
