@@ -1,40 +1,64 @@
+// Entry point
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
-const mongoose = require('mongoose');
-require('dotenv').config();
-
-const analyzerRouter = require('./routes/analyzer');
+const bodyParser = require('body-parser');
+const cors = require('cors'); // added
+const { connectDB } = require('./config/database');
+const env = require('./config/env');
+const analyzerRoutes = require('./routes/analyzerRoutes');
+const { errorHandler } = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
+const mongoose = require('mongoose');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
 
-// Attach request ID to every request
+
+
+// Middlewares
+app.use(morgan('dev'));
+app.use(bodyParser.json({ limit: '5mb' }));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
+app.use(express.json());
+
+// Routes
+app.use('/api/analyze', analyzerRoutes);
+
 app.use((req, res, next) => {
-  req.requestId = uuidv4();
-  res.setHeader('X-Request-ID', req.requestId);
+  console.log('DEBUG HIT:', req.method, req.url);
   next();
 });
 
-// Connect to MongoDB
-const mongoUri = process.env.MONGO_URI;
-logger.info(`Connecting to MongoDB: ${mongoUri}`);
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => logger.info('MongoDB connected'))
-  .catch(err => logger.error(`MongoDB connection error: ${err.message}`));
 
-// Mount routes
-app.use('/api', analyzerRouter);
-
-// Error handler
-app.use((err, req, res, next) => {
-  logger.error(err.message, req.requestId);
-  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error', requestId: req.requestId });
+// Healthcheck
+app.get('/health', (req, res) => {
+  console.log('>>> /health HIT');   // debug log
+  res.json({ status: 'ok' });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => logger.info(`Server listening on port ${PORT}`));
+// Error handler (last)
+app.use(errorHandler);
+
+// Start
+async function start() {
+  try {
+    const mongoUri = process.env.MONGO_URI;
+    logger.info(`Connecting to MongoDB: ${mongoUri}`);
+    // Use mongoose directly instead of calling a possibly-missing connectDB helper
+    await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+    logger.info('MongoDB connected');
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => logger.info(`Server listening on port ${PORT}`));
+  } catch (err) {
+    logger.error(`Startup failed: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+start();
