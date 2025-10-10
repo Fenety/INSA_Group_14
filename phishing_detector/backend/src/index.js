@@ -19,7 +19,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend URL
+    origin: "http://localhost:3001", // frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
@@ -28,6 +28,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/analyze', analyzerRoutes);
+
 
 app.use((req, res, next) => {
   console.log('DEBUG HIT:', req.method, req.url);

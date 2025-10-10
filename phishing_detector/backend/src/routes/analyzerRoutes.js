@@ -6,6 +6,10 @@ const { validateAnalyzeRequest } = require('../middlewares/validateRequest');
 // URL and Email endpoints
 router.post('/url', validateAnalyzeRequest, analyzerController.analyzeUrl);
 router.post('/email', validateAnalyzeRequest, analyzerController.analyzeEmail);
+// GET /api/analyze/history (optional - get past analysis result)
+router.get('/history', analyzerController.getHistory);
+
+
 
 module.exports = router;
 
