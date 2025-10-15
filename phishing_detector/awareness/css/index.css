@@ -2,12 +2,12 @@
     --primary: #f8f9fc; /* Light background inspired by the image */
     --secondary: #ffffff; /* White for containers */
     --text: #333333; /* Dark text for readability */
-    --highlight: #007bff; /* Blue accent instead of purple */
+    --highlight: #007bff; /* Blue accent */
     --correct: #4CAF50; /* Green for correct/right */
     --incorrect: #F44336; /* Red for incorrect/wrong */
     --warning: #FFC107; /* Yellow for warnings */
     --unlocked-green: #28a745; /* Brighter green for unlocked */
-    --border: #dee2e6; /* Light gray border */
+    --border: #b9bcc0; /* Light gray border */
     --key-point-bg: #f1f3f5; /* Very light gray for key points */
 }
 
@@ -24,12 +24,18 @@ body {
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
     padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header & Typography */
@@ -37,8 +43,10 @@ header {
     background: var(--secondary);
     padding: 20px;
     text-align: center;
-    border-bottom: 2px solid var(--border);
-    border-radius: 8px 8px 0 0;
+    border: 2px solid var(--border);
+    border-bottom: 4px solid var(--border);
+    border-radius: 8px;
+    width: 100%;
 }
 
 .logo {
@@ -79,6 +87,7 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     border-radius: 8px;
     margin: 25px 0;
     border-left: 4px solid var(--highlight);
+    width: 100%;
 }
 .intro-phishing ul {
     list-style: none;
@@ -98,8 +107,10 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     background: var(--secondary);
     padding: 20px;
     border-radius: 8px;
+    border: 2px solid var(--border);
     margin: 20px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
 }
 
 .stats { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -117,7 +128,11 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
 .stat-box:hover { transform: translateY(-5px); }
 .stat-box h3 { font-size: 2rem; color: var(--highlight); margin-bottom: 10px; }
 
-.tasks { margin: 30px 0; }
+.tasks {
+    margin: 30px 0;
+    flex: 1 0 auto;
+    width: 100%;
+}
 .task {
     background-color: var(--secondary);
     border-radius: 8px;
@@ -125,6 +140,7 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     overflow: hidden;
     border: 2px solid var(--border);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
 }
 .task-header {
     background: var(--secondary);
@@ -134,13 +150,14 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border);
+    width: 100%;
 }
-.task-content { padding: 25px; display: none; }
+.task-content { padding: 25px; display: none; width: 100%; }
 .task.active .task-content { display: block; animation: fadeIn 0.5s ease; }
 
-.quiz { margin: 20px 0; }
+.quiz { margin: 20px 0; width: 100%; }
 .question { margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
-.options { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 15px 0; }
+.options { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 15px 0; width: 100%; }
 .option {
     background-color: var(--secondary);
     padding: 15px 20px;
@@ -168,6 +185,7 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     font-weight: bold;
     transition: all 0.3s;
     margin-top: 20px;
+    width: auto;
 }
 .btn-reset {
     background: var(--highlight);
@@ -187,6 +205,7 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     margin: 30px 0;
     overflow: hidden;
     border: 2px solid var(--border);
+    width: 100%;
 }
 .progress {
     height: 100%;
@@ -197,7 +216,15 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
 }
 
-footer { text-align: center; margin-top: 40px; padding: 30px; border-top: 1px solid var(--border); font-size: 0.9rem; color: #666; }
+footer {
+    text-align: center;
+    margin-top: auto;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: #666;
+    width: 100%;
+}
 
 .task-status { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 .completed-badge, .locked-badge, .unlocked-badge {
