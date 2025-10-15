@@ -9,6 +9,12 @@
     --unlocked-green: #2e7d32; /* A dark green for unlocked items */
     --border: #444444; /* Slightly darker border color for more contrast */
     --key-point-bg: #2c2c2c; /* A distinct background for key-points */
+    --accent: #00bcd4; /* Cyan accent for modern look */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-correct: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    --gradient-incorrect: linear-gradient(135deg, #F44336 0%, #d32f2f 100%);
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* General Styles */
@@ -27,7 +33,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    /* max-width: 900px; */
     margin: 0 auto;
     padding: 20px;
 }
@@ -131,9 +137,33 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
-.task-content { padding: 25px; display: none; }
-.task.active .task-content { display: block; animation: fadeIn 0.5s ease; }
+.task-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 212, 212, 0.1), transparent);
+    transition: left 0.5s;
+}
+.task-header:hover::before {
+    left: 100%;
+}
+.task-header:hover {
+    background: rgba(212, 212, 212, 0.05);
+    transform: translateY(-2px);
+}
+.task-content {
+    padding: 25px;
+    display: none;
+    animation: slideDown 0.4s ease-out;
+}
+.task.active .task-content { display: block; }
 
 .quiz { margin: 20px 0; }
 .question { margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
@@ -146,12 +176,36 @@ p { margin-bottom: 15px; font-size: 1.1rem; }
     border: 2px solid var(--border);
     transition: all 0.3s;
 }
-.option:hover { background-color: #2c2c2c; border-color: var(--highlight); }
-.option.correct { background-color: var(--correct); border-color: var(--correct); }
-.option.incorrect { background-color: var(--incorrect); border-color: var(--incorrect); }
-.option.disabled { cursor: not-allowed; opacity: 0.7; }
-.option.disabled:hover { background-color: var(--secondary); border-color: var(--border); }
-.option.correct.disabled:hover { background-color: var(--correct); border-color: var(--correct);}
+.option:hover {
+    background-color: #2c2c2c;
+    border-color: var(--highlight);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.option.correct {
+    background: var(--gradient-correct);
+    border-color: var(--correct);
+    animation: bounceIn 0.6s ease-out;
+}
+.option.incorrect {
+    background: var(--gradient-incorrect);
+    border-color: var(--incorrect);
+    animation: pulse 0.6s ease-out;
+}
+.option.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.option.disabled:hover {
+    background-color: var(--secondary);
+    border-color: var(--border);
+    transform: none;
+    box-shadow: none;
+}
+.option.correct.disabled:hover {
+    background: var(--gradient-correct);
+    border-color: var(--correct);
+}
 
 
 .btn {
@@ -215,9 +269,130 @@ footer { text-align: center; margin-top: 40px; padding: 30px; border-top: 1px so
 .unlocked-badge { background-color: var(--unlocked-green); }
 
 @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
 .feedback { display: none; padding: 10px 15px; border-radius: 6px; margin-top: 20px; }
 .feedback.correct { background: rgba(76, 175, 80, 0.3); border-left: 4px solid var(--correct); }
 .feedback.incorrect { background: rgba(244, 67, 54, 0.3); border-left: 4px solid var(--incorrect); }
+
+/* Timer Styles */
+.timer-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: var(--secondary);
+    border-radius: 25px;
+    border: 2px solid var(--border);
+}
+.timer-icon {
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+.timer-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text);
+}
+.timer-countdown {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--warning);
+    min-width: 40px;
+    text-align: center;
+}
+.timer-warning {
+    color: var(--incorrect) !important;
+    animation: pulse 1s infinite;
+}
+
+/* Hint System */
+.hint-container {
+    margin-top: 15px;
+}
+.hint-btn {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+.hint-btn:hover {
+    background: #0097a7;
+    transform: translateY(-2px);
+}
+.hint-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+.hint-text {
+    display: none;
+    background: rgba(0, 188, 212, 0.1);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--text);
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: var(--secondary);
+    color: var(--text);
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -125px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 
 /* Custom Alert System Styles */
 .hidden { display: none !important; }
