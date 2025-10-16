@@ -11,7 +11,7 @@ import PhishingAwareness from './pages/phishing-aware'
 import Documentation from './components/Documentation'
 import Blog from './components/Blog'
 import Support from './components/Support'
-//import Status from './pages/Status'
+import Status from './components/Status'
 
 function App() {
   return (
@@ -28,8 +28,8 @@ function App() {
           <Route path="/Documentation" element={<Documentation />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/support" element={<Support />} />
-         {/* <Route path="/status" element={<Status />} />
-          */}
+          <Route path="/status" element={<Status />} />
+          
         </Routes>
       </main>
       <Footer />
