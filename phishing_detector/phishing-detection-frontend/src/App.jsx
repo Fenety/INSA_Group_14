@@ -10,12 +10,13 @@ import HistoryPage from './pages/History'
 import PhishingAwareness from './pages/phishing-aware'
 import Documentation from './components/Documentation'
 import Blog from './components/Blog'
-//import Support from './pages/Support'
+import Support from './components/Support'
 //import Status from './pages/Status'
 
 function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-violet-50">
+      <Header />
 
       <main className="flex-1">
         <Routes>
@@ -26,8 +27,8 @@ function App() {
           <Route path="/phishing-awareness" element={<PhishingAwareness />} />
           <Route path="/Documentation" element={<Documentation />} />
           <Route path="/blog" element={<Blog />} />
-         {/* <Route path="/support" element={<Support />} />
-          <Route path="/status" element={<Status />} />
+          <Route path="/support" element={<Support />} />
+         {/* <Route path="/status" element={<Status />} />
           */}
         </Routes>
       </main>
