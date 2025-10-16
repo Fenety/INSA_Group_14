@@ -1,30 +1,30 @@
+// src/pages/Home.jsx
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Home = () => {
-  // In the features array, replace with:
-const features = [
-  {
-    icon: '🔍',
-    title: 'URL Security Scanner',
-    description: 'Advanced AI analysis of websites for phishing indicators, malware, and security threats in real-time.',
-    color: 'from-blue-500 to-cyan-500',
-    link: '/scan'
-  },
-  {
-    icon: '📧',
-    title: 'Email Content Analyzer',
-    description: 'Detect phishing attempts in email content with AI-powered analysis of language patterns and social engineering tactics.',
-    color: 'from-green-500 to-emerald-500',
-    link: '/email-scan'
-  },
-  {
-    icon: '🛡️',
-    title: 'Enterprise Security',
-    description: 'Military-grade encryption and privacy protection. Your data never leaves your control.',
-    color: 'from-violet-500 to-purple-500'
-  }
-]
+  const features = [
+    {
+      icon: '🔍',
+      title: 'URL Security Scanner',
+      description: 'Advanced AI analysis of websites for phishing indicators, malware, and security threats in real-time.',
+      color: 'from-blue-500 to-cyan-500',
+      link: '/scan'
+    },
+    {
+      icon: '📧',
+      title: 'Email Content Analyzer',
+      description: 'Detect phishing attempts in email content with AI-powered analysis of language patterns and social engineering tactics.',
+      color: 'from-green-500 to-emerald-500',
+      link: '/email-scan'
+    },
+    {
+      icon: '🛡️',
+      title: 'Enterprise Security',
+      description: 'Military-grade encryption and privacy protection. Your data never leaves your control.',
+      color: 'from-violet-500 to-purple-500'
+    }
+  ]
 
   const stats = [
     { number: '99.9%', label: 'Accuracy Rate', icon: '🎯' },
@@ -61,22 +61,23 @@ const features = [
           </p>
           
           {/* CTA Buttons */}
-<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
-  <Link to="/scan" className="btn btn-primary btn-lg group">
-    <span className="flex items-center space-x-3">
-      <span className="text-xl">🔍</span>
-      <span>Scan URL</span>
-      <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-    </span>
-  </Link>
-  <Link to="/email-scan" className="btn btn-success btn-lg group">
-    <span className="flex items-center space-x-3">
-      <span className="text-xl">📧</span>
-      <span>Analyze Email</span>
-      <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-    </span>
-  </Link>
-</div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
+            <Link to="/scan" className="btn btn-primary btn-lg group">
+              <span className="flex items-center space-x-3">
+                <span className="text-xl">🔍</span>
+                <span>Scan URL</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+              </span>
+            </Link>
+            <Link to="/email-scan" className="btn btn-success btn-lg group">
+              <span className="flex items-center space-x-3">
+                <span className="text-xl">📧</span>
+                <span>Analyze Email</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+              </span>
+            </Link>
+          </div>
+          
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
@@ -135,12 +136,20 @@ const features = [
           <p className="text-xl text-blue-200 mb-8 max-w-2xl mx-auto">
             Join millions of users who trust PhishGuard to protect them from online threats.
           </p>
-          <Link to="/scan" className="btn bg-white text-slate-900 hover:bg-slate-100 btn-lg font-black text-lg">
-            <span className="flex items-center space-x-2">
-              <span>🚀</span>
-              <span>Start Free Protection Now</span>
-            </span>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/scan" className="btn bg-white text-slate-900 hover:bg-slate-100 btn-lg font-black text-lg">
+              <span className="flex items-center space-x-2">
+                <span>🚀</span>
+                <span>Start Free Protection Now</span>
+              </span>
+            </Link>
+            <Link to="/phishing-awareness" className="btn bg-green-500 text-white hover:bg-green-600 btn-lg font-black text-lg">
+              <span className="flex items-center space-x-2">
+                <span>📚</span>
+                <span>Learn Phishing Awareness</span>
+              </span>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
