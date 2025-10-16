@@ -25,7 +25,6 @@ const Footer = () => {
               <li><a href="/scan" className="hover:text-white transition-colors">URL Scanner</a></li>
               <li><a href="/history" className="hover:text-white transition-colors">Scan History</a></li>
               <li><a href="/phishing-awareness" className="hover:text-white transition-colors">Security Tips</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">API Docs</a></li>
             </ul>
           </div>
 
