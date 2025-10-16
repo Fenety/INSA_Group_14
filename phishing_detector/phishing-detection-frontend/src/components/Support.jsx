@@ -5,7 +5,6 @@ import Footer from './Footer'
 const Support = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-blue-600 mb-6">Support</h1>
@@ -106,7 +105,6 @@ const Support = () => {
           </section>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }
