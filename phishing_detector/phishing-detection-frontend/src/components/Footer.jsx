@@ -24,7 +24,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><a href="/scan" className="hover:text-white transition-colors">URL Scanner</a></li>
               <li><a href="/history" className="hover:text-white transition-colors">Scan History</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Security Tips</a></li>
+              <li><a href="/phishing-awareness" className="hover:text-white transition-colors">Security Tips</a></li>
               <li><a href="#" className="hover:text-white transition-colors">API Docs</a></li>
             </ul>
           </div>
@@ -33,10 +33,10 @@ const Footer = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+              <li><a href="/documentation" className="hover:text-white transition-colors">Documentation</a></li>
+              <li><a href="/blog" className="hover:text-white transition-colors">Blog</a></li>
+              <li><a href="/support" className="hover:text-white transition-colors">Support</a></li>
+              <li><a href="/status" className="hover:text-white transition-colors">Status</a></li>
             </ul>
           </div>
 

@@ -7,7 +7,11 @@ import Home from './pages/Home'
 import Scan from './pages/Scan'
 import EmailScan from './pages/EmailScan'
 import HistoryPage from './pages/History'
-import PhishingAwareness from './pages/phishing-aware' // Add this import
+import PhishingAwareness from './pages/phishing-aware'
+import Documentation from './components/Documentation'
+//import Blog from './pages/Blog'
+//import Support from './pages/Support'
+//import Status from './pages/Status'
 
 function App() {
   return (
@@ -19,7 +23,12 @@ function App() {
           <Route path="/scan" element={<Scan />} />
           <Route path="/email-scan" element={<EmailScan />} />
           <Route path="/history" element={<HistoryPage />} />
-          <Route path="/phishing-awareness" element={<PhishingAwareness />} /> {/* New route */}
+          <Route path="/phishing-awareness" element={<PhishingAwareness />} />
+          <Route path="/Documentation" element={<Documentation />} />
+        {/*   <Route path="/blog" element={<Blog />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/status" element={<Status />} />
+          */}
         </Routes>
       </main>
       <Footer />
