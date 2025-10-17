@@ -22,11 +22,12 @@ const Documentation = () => {
                 <li>npm (v8.x or higher)</li>
                 <li>Git (for cloning the repository)</li>
                 <li>Modern web browser (Chrome, Firefox, Edge)</li>
+                <li>MongoDB for the backend</li>
               </ul>
               <h3 className="text-xl font-medium text-gray-800 mb-2">Steps</h3>
               <ol className="list-decimal list-inside text-gray-600">
-                <li>Clone the repository: <code>git clone https://github.com/your-repo/phishguard.git</code></li>
-                <li>Navigate to the project directory: <code>cd phishguard</code></li>
+                <li>Clone the repository: <code>git clone https://github.com/Fenety/INSA_Group_14.git</code></li>
+                <li>Navigate to the project directory: <code>cd INSA_Group_14</code></li>
                 <li>Install dependencies: <code>npm install</code></li>
                 <li>Start the development server: <code>npm start</code></li>
                 <li>Open your browser and visit: <code>http://localhost:3000</code></li>
@@ -68,10 +69,6 @@ const Documentation = () => {
               <h3 className="text-xl font-medium text-gray-800 mb-2">Customization</h3>
               <p className="text-gray-600 mb-4">
                 Modify tasks and quizzes in <code>PhishingAwareness.jsx</code> by updating the <code>tasksData</code> array.
-              </p>
-              <h3 className="text-xl font-medium text-gray-800 mb-2">API Integration</h3>
-              <p className="text-gray-600">
-                Integrate with PhishGuard API. Visit <a href="https://phishguard.ai/api" className="text-blue-500 underline">phishguard.ai/api</a> for endpoints and authentication details.
               </p>
             </div>
           </section>
