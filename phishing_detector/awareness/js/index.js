@@ -11,10 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let score = 0;
         const tasks = document.querySelectorAll('.task');
         // Correctly counts all individual quiz containers for the total score
-        const totalQuestions = document.querySelectorAll('.quiz').length; 
+        const totalQuestions = document.querySelectorAll('.quiz').length;
         let answeredCorrectlyCount = 0;
         let answeredQuizIds = new Set(); // stores quiz ids (or indexes) that are answered
         let unlockedTaskIds = new Set(); // stores unlocked task ids
+
+        // --- HINT SYSTEM ---
+        const hintsUsed = new Set(); // Track which quizzes have used hints
 
     // --- ELEMENT SELECTORS ---
     const scoreEl = document.getElementById('score');
@@ -55,6 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (nextButton) {
                 nextButton.addEventListener('click', () => handleNextButtonClick(task));
             }
+
+            // Add hint button listeners
+            const hintBtns = task.querySelectorAll('.hint-btn');
+            hintBtns.forEach((btn, quizIdx) => {
+                btn.addEventListener('click', () => handleHintClick(btn, task, quizIdx));
+            });
         });
 
         // Listeners for the custom alert modal
@@ -101,6 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent re-answering a single quiz that has already been answered correctly (even after reload)
         if (answeredQuizIds.has(quizId)) return;
 
+        // Timer functionality removed
+
         const options = quiz.querySelectorAll('.option');
         const feedbackCorrect = quiz.querySelector('.feedback.correct');
         const feedbackIncorrect = quiz.querySelector('.feedback.incorrect');
@@ -143,6 +154,33 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackIncorrect.style.display = 'block';
         }
     }
+
+    /**
+     * Handles hint button clicks.
+     * @param {HTMLElement} hintBtn - The hint button that was clicked.
+     * @param {HTMLElement} currentTask - The parent task element.
+     * @param {number} quizIdx - The index of the quiz within the task.
+     */
+    function handleHintClick(hintBtn, currentTask, quizIdx) {
+        const quiz = hintBtn.closest('.quiz');
+        const quizId = `${currentTask.id}_${quizIdx}`;
+
+        // Prevent hint usage if already answered or hint already used
+        if (answeredQuizIds.has(quizId) || hintsUsed.has(quizId)) return;
+
+        const hintText = quiz.querySelector('.hint-text');
+        if (hintText) {
+            hintText.style.display = hintText.style.display === 'block' ? 'none' : 'block';
+            if (hintText.style.display === 'block') {
+                hintsUsed.add(quizId);
+                hintBtn.disabled = true;
+                hintBtn.textContent = 'Hint Used';
+
+            }
+        }
+    }
+
+
 
     /**
      * Handles moving to the next task or finishing the game.
