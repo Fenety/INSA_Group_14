@@ -26,8 +26,13 @@ app.use(
 
 app.use(express.json());
 
+// Add a root route to handle GET requests
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Welcome to the Phishing Detector API!' });
+});
+
 // Routes
-app.use('/api/analyze', analyzerRoutes);
+app.use('/api', analyzerRoutes);
 
 
 app.use((req, res, next) => {
