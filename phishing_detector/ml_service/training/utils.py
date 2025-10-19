@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import json
 
-MAX_LEN = 100
+MAX_LEN = 200
 
 def build_char_index(texts):
     chars = sorted(list(set("".join(texts))))
@@ -21,10 +21,22 @@ def load_dataset(file_path):
     return X, y
 
 def preprocess_text(text, char_index):
+    """Encode and pad/truncate `text` to length MAX_LEN.
+
+    Uses a dedicated unknown-token id equal to len(char_index) + 1 so
+    unknown characters aren't mapped to the padding id (0).
+    Returns a numpy array of dtype int32 and shape (MAX_LEN,).
+    """
     text = re.sub(r"[^a-zA-Z0-9:/._-]", "", text.lower())
-    encoded = [char_index.get(c, 0) for c in text[:MAX_LEN]]
-    padded = np.pad(encoded, (0, MAX_LEN - len(encoded)), "constant")
-    return padded
+    unk_id = len(char_index) + 1
+    # map characters to ids, truncating to MAX_LEN
+    encoded = [char_index.get(c, unk_id) for c in text[:MAX_LEN]]
+    # pad with zeros (padding id = 0) up to MAX_LEN
+    if len(encoded) < MAX_LEN:
+        padded = np.pad(encoded, (0, MAX_LEN - len(encoded)), "constant")
+    else:
+        padded = np.array(encoded, dtype=np.int32)
+    return np.array(padded, dtype=np.int32)
 
 def prepare_data(X, y, char_index):
     X_processed = np.array([preprocess_text(t, char_index) for t in X])

@@ -165,10 +165,10 @@ history = model.fit(
 
 # ---- Save model as SavedModel (best for serving) ----------------------------
 print("Saving SavedModel to", SAVED_MODEL_DIR)
-model.save(SAVED_MODEL_DIR, include_optimizer=False)
+model.export(SAVED_MODEL_DIR)   # ✅ Correct way in Keras 3
 
 # Also save final H5 (ModelCheckpoint already saved best H5)
-model.save(H5_PATH)
+model.save(H5_PATH)  # ✅ still valid for H5 format
 
 # ---- Evaluate on test set ---------------------------------------------------
 print("Evaluating on test set...")
