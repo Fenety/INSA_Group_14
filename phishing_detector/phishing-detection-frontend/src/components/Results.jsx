@@ -19,11 +19,7 @@ const Results = ({ result }) => {
       </div>
     );
   }
-
-  // Safely extract data with fallbacks
   const data = result.data || result;
-  const verdict = data?.verdict || 'Unknown';
-  const score = data?.score || 0;
   const heuristicsScore = data?.heuristicsScore || 0;
   const mlScore = data?.mlScore || 0;
   const details = Array.isArray(data?.details) ? data.details : [];
@@ -221,9 +217,18 @@ const Results = ({ result }) => {
             <span className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">📊</span>
             <span>Detailed Analysis</span>
           </h3>
-          <ul className="list-disc ml-5 text-slate-700 space-y-1">
+          <ul className="list-disc ml-5 text-slate-700 space-y-2">
             {details.map((detail, idx) => (
-              <li key={idx}>{detail}</li>
+              <li key={idx} className="flex items-center space-x-2">
+                <span
+                  className={`w-3 h-3 rounded-full ${
+                    detail.safe ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                ></span>
+                <span>
+                  <strong>{detail.source || 'Unknown'}:</strong> {detail.safe ? 'Safe ✅' : 'Suspicious ⚠️'}
+                </span>
+              </li>
             ))}
           </ul>
         </div>

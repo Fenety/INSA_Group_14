@@ -1,14 +1,16 @@
-const mongoose = require('mongoose');
+// db/models/ScanResult.js
+const mongoose = require("mongoose");
 
 const ScanResultSchema = new mongoose.Schema({
-  type: { type: String, required: true }, // "url" or "email"
-  url: { type: String },
-  email: { type: String },
-  heuristicsScore: { type: Number, default: 0 },
-  mlScore: { type: Number, default: 0 },
-  score: { type: Number, default: 0 },
-  verdict: { type: String, default: 'unknown' },
-  details: { type: [String], default: [] }, // triggered heuristics
-}, { timestamps: true });
+  type: { type: String, required: true }, // 'url' or 'email'
+  url: String,
+  email: String,
+  heuristicsScore: Number,
+  mlScore: Number,
+  score: Number,
+  verdict: String,
+  details: { type: Array, default: [] }, // <-- accept array of any type
+  createdAt: { type: Date, default: Date.now },
+});
 
-module.exports = mongoose.model('ScanResult', ScanResultSchema);
+module.exports = mongoose.model("ScanResult", ScanResultSchema);

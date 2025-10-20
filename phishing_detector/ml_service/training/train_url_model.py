@@ -106,8 +106,17 @@ history = model.fit(
 
 # ---- Save models -----------------------------------------------------------
 print("Saving models...")
-model.export(SAVED_MODEL_DIR)  # ✅ use export() for Keras 3
-model.save(H5_PATH)            # ✅ still valid for .h5
+# Export SavedModel (Keras 3 style) and also persist an H5 for compatibility
+try:
+    model.export(SAVED_MODEL_DIR)
+except AttributeError:
+    # Fallback for older TF/Keras
+    model.save(SAVED_MODEL_DIR, include_optimizer=False)
+
+# Always save an H5 snapshot of the weights/model for portability
+model.save(H5_PATH)
+
+# Persist the character index used for encoding
 with open(CHAR_INDEX_PATH, "w", encoding="utf-8") as f:
     json.dump(char_index, f, indent=2)
 

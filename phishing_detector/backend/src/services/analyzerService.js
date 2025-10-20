@@ -1,25 +1,44 @@
-// services/analyzerService.js
 const urlChecks = require('./heuristics/urlChecks');
 const contentChecks = require('./heuristics/contentChecks');
 const mlChecks = require('./heuristics/mlChecks');
 const ScanResult = require('../db/models/ScanResult');
 const { PHISHING_THRESHOLD } = require('../config/constants');
 
+// --- Toggle fake vs real external APIs ---
+const useFake = process.env.USE_FAKE_API === 'true';
+const { checkGoogleSafeBrowsing, checkVirusTotal, checkPhishTank } = useFake
+  ? require('./heuristics/externalAPIs.fake')
+  : require('./heuristics/externalAPIs');
+
 exports.analyzeUrl = async (url) => {
   try {
+    // --- 1. Heuristic check ---
     let heuristicsScore = 0;
     let details = [];
-
     const heuristicResult = urlChecks.checkUrl(url);
     if (heuristicResult && typeof heuristicResult === 'object') {
       heuristicsScore = heuristicResult.score || 0;
       details = heuristicResult.details || [];
     }
 
+    // --- 2. ML check ---
     const mlScore = await mlChecks.evaluateUrl(url);
-    const finalScore = (heuristicsScore + mlScore) / 2;
-    const verdict = finalScore > PHISHING_THRESHOLD ? 'Suspicious' : 'Safe';
 
+    // --- 3. External API checks in parallel ---
+    const [google, vt, phish] = await Promise.all([
+      checkGoogleSafeBrowsing(url),
+      checkVirusTotal(url),
+      checkPhishTank(url),
+    ]);
+
+    const externalChecks = [google, vt, phish].filter(r => r.safe !== null);
+    const externalSafe = externalChecks.every(r => r.safe === true);
+
+    // --- 4. Combine final score & verdict ---
+    const finalScore = (heuristicsScore + mlScore) / 2;
+    const verdict = finalScore > PHISHING_THRESHOLD || !externalSafe ? 'Suspicious' : 'Safe';
+
+    // --- 5. Save to MongoDB ---
     const saved = await ScanResult.create({
       type: 'url',
       url,
@@ -27,7 +46,7 @@ exports.analyzeUrl = async (url) => {
       mlScore,
       score: finalScore,
       verdict,
-      details,
+      details: externalChecks,
     });
 
     return {
@@ -39,7 +58,7 @@ exports.analyzeUrl = async (url) => {
         mlScore,
         score: finalScore,
         verdict,
-        details,
+        details: externalChecks,
       },
     };
   } catch (error) {
@@ -48,6 +67,7 @@ exports.analyzeUrl = async (url) => {
   }
 };
 
+// --- Optional: analyzeEmail can be adapted the same way ---
 exports.analyzeEmail = async (email) => {
   try {
     let heuristicsScore = 0;
