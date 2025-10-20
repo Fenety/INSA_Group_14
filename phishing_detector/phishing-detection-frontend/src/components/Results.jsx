@@ -1,6 +1,11 @@
 import React from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // Explicit import
 
 const Results = ({ result }) => {
+  // Log input to debug
+  console.log('Result prop:', result);
+
   if (!result) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -15,24 +20,139 @@ const Results = ({ result }) => {
     );
   }
 
-  // Determine if it is email or URL scan
+  // Safely extract data with fallbacks
   const data = result.data || result;
-  const { verdict, score, heuristicsScore, mlScore, details, email, url } = data;
+  const verdict = data?.verdict || 'Unknown';
+  const score = data?.score || 0;
+  const heuristicsScore = data?.heuristicsScore || 0;
+  const mlScore = data?.mlScore || 0;
+  const details = Array.isArray(data?.details) ? data.details : [];
+  const email = data?.email || '';
+  const url = data?.url || '';
 
   const getRiskConfig = (verdict) => {
     switch (verdict?.toLowerCase()) {
       case 'suspicious':
-        return { color: 'from-orange-500 to-red-500', icon: '⚠️', level: 'Suspicious' };
+        return { color: 'from-orange-500 to-red-500', icon: '⚠️', level: 'Suspicious', pdfColor: [249, 115, 22] };
       case 'phishing':
-        return { color: 'from-red-500 to-pink-600', icon: '🚨', level: 'High Risk' };
+        return { color: 'from-red-500 to-pink-600', icon: '🚨', level: 'High Risk', pdfColor: [239, 68, 68] };
       case 'safe':
-        return { color: 'from-emerald-500 to-green-600', icon: '✅', level: 'Safe' };
+        return { color: 'from-emerald-500 to-green-600', icon: '✅', level: 'Safe', pdfColor: [16, 185, 129] };
       default:
-        return { color: 'from-gray-400 to-gray-600', icon: '❔', level: 'Unknown' };
+        return { color: 'from-gray-400 to-gray-600', icon: '❔', level: 'Unknown', pdfColor: [107, 114, 128] };
     }
   };
 
   const riskConfig = getRiskConfig(verdict);
+
+  const handleDownload = () => {
+    try {
+      console.log('Starting PDF generation...');
+      const doc = new jsPDF();
+
+      // Header
+      doc.setFillColor(...riskConfig.pdfColor);
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(255, 255, 255);
+      doc.text('Phishing Scan Report', 20, 15);
+      doc.setFontSize(12);
+      doc.text(`${riskConfig.icon} ${riskConfig.level}`, 20, 23);
+
+      // Reset for body
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+
+      // Scan Summary Table
+      doc.text('Scan Summary', 20, 40);
+      doc.setDrawColor(...riskConfig.pdfColor);
+      doc.line(20, 42, 80, 42);
+
+      const summaryData = [
+        ['Verdict', verdict],
+        ['Overall Score', `${(score * 100).toFixed(1)}%`],
+        ['Heuristics Score', `${(heuristicsScore * 100).toFixed(1)}%`],
+        ['ML Score', `${(mlScore * 100).toFixed(1)}%`],
+        ['Scanned Input', email || url || 'N/A'],
+        ['Timestamp', new Date().toLocaleString()],
+      ];
+
+      autoTable(doc, {
+        startY: 45,
+        head: [['Field', 'Value']],
+        body: summaryData,
+        theme: 'striped',
+        styles: {
+          font: 'helvetica',
+          fontSize: 10,
+          textColor: [51, 65, 85],
+          lineWidth: 0.2,
+          lineColor: [203, 213, 225],
+        },
+        headStyles: {
+          fillColor: riskConfig.pdfColor,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [241, 245, 249],
+        },
+        margin: { left: 20, right: 20 },
+      });
+
+      // Detailed Analysis Table
+      if (details.length > 0) {
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Detailed Analysis', 20, finalY);
+        doc.line(20, finalY + 2, 80, finalY + 2);
+        doc.setFont('helvetica', 'normal');
+
+        const detailData = details.map((detail, idx) => [idx + 1, detail]);
+        autoTable(doc, {
+          startY: finalY + 5,
+          head: [['#', 'Detail']],
+          body: detailData,
+          theme: 'striped',
+          styles: {
+            font: 'helvetica',
+            fontSize: 10,
+            textColor: [51, 65, 85],
+            lineWidth: 0.2,
+            lineColor: [203, 213, 225],
+          },
+          headStyles: {
+            fillColor: riskConfig.pdfColor,
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+          },
+          alternateRowStyles: {
+            fillColor: [241, 245, 249],
+          },
+          margin: { left: 20, right: 20 },
+        });
+      }
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Page ${i} of ${pageCount}`, 190, 287, { align: 'right' });
+        doc.text('Generated by AI Security Scanner', 20, 287);
+      }
+
+      // Save
+      doc.save(`phishing-scan-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      console.log('PDF generated and saved successfully');
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF report. Please try again.');
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
@@ -95,7 +215,7 @@ const Results = ({ result }) => {
       </div>
 
       {/* Detailed Analysis */}
-      {details && details.length > 0 && (
+      {details.length > 0 && (
         <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
           <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center space-x-3">
             <span className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">📊</span>
@@ -117,7 +237,10 @@ const Results = ({ result }) => {
             <span>Scan Another</span>
           </span>
         </button>
-        <button className="btn btn-secondary btn-lg flex-1">
+        <button
+          className="btn btn-secondary btn-lg flex-1"
+          onClick={handleDownload}
+        >
           <span className="flex items-center space-x-2">
             <span>📥</span>
             <span>Download Report</span>
