@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import json
 from training.utils import preprocess_text
@@ -21,23 +22,35 @@ try:
     email_max_index = email_model.layers[1].input_dim - 1
     url_max_index = url_model.layers[1].input_dim - 1
 
+    # Detect model input lengths dynamically
+    email_input_len = email_model.input_shape[1]
+    url_input_len = url_model.input_shape[1]
+
     print("✅ Models and char indices loaded successfully")
+  
+
 except Exception as e:
     print(f"⚠️ Model load failed: {e}")
     email_model, url_model = None, None
     email_char_index, url_char_index = {}, {}
     email_max_index, url_max_index = 0, 0
+    email_input_len, url_input_len = 200, 200  
+
 
 class PredictRequest(BaseModel):
     type: str  # 'email' or 'url'
     content: str
 
-def safe_vectorize(text: str, char_index: dict, max_index: int) -> np.ndarray:
-    """Preprocess and clip indices to prevent embedding errors."""
+
+def safe_vectorize(text: str, char_index: dict, max_index: int, max_len: int) -> np.ndarray:
+    """Preprocess, clip, and pad text to match model input shape."""
     vector = preprocess_text(text, char_index)
-    # Clip indices to max_index to avoid out-of-range
+    # Clip indices to prevent embedding out-of-range errors
     vector = [min(idx, max_index) for idx in vector]
-    return np.array([vector])
+    # Pad or truncate sequence to match model input size
+    padded = pad_sequences([vector], maxlen=max_len, padding='post', truncating='post')
+    return np.array(padded)
+
 
 @app.post("/predict")
 async def predict(req: PredictRequest):
@@ -46,14 +59,13 @@ async def predict(req: PredictRequest):
 
     try:
         if req.type == "email" and email_model:
-            vector = safe_vectorize(req.content, email_char_index, email_max_index)
+            vector = safe_vectorize(req.content, email_char_index, email_max_index, max_len=email_input_len)
             score = float(email_model.predict(vector)[0][0])
         elif req.type == "url" and url_model:
-            vector = safe_vectorize(req.content, url_char_index, url_max_index)
+            vector = safe_vectorize(req.content, url_char_index, url_max_index, max_len=url_input_len)
             score = float(url_model.predict(vector)[0][0])
         else:
-            # fallback random score if model is not loaded
-            score = np.random.uniform(0, 1)
+            score = np.random.uniform(0, 1)  # fallback if model not loaded
     except Exception as e:
         return {"error": f"Prediction failed: {e}"}
 
