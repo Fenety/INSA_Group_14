@@ -105,8 +105,9 @@ history = model.fit(
 )
 
 # ---- Save models -----------------------------------------------------------
-model.save(SAVED_MODEL_DIR, include_optimizer=False)
-model.save(H5_PATH)
+print("Saving models...")
+model.export(SAVED_MODEL_DIR)  # ✅ use export() for Keras 3
+model.save(H5_PATH)            # ✅ still valid for .h5
 with open(CHAR_INDEX_PATH, "w", encoding="utf-8") as f:
     json.dump(char_index, f, indent=2)
 
