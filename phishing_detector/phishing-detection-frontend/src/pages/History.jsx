@@ -119,22 +119,85 @@ const HistoryPage = () => {
           </div>
         )}
 
-        {/* Modal */}
+       {/* Improved Modal with Animations and Percentage Scores */}
         {selectedScan && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full relative">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto animate__animated animate__fadeIn animate__faster">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full relative overflow-hidden animate__animated animate__zoomIn animate__faster">
+              {/* Close button - more subtle and positioned better */}
               <button
-                className="absolute top-2 right-2 btn btn-sm btn-ghost"
+                className="absolute top-4 right-4 btn btn-circle btn-ghost btn-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                 onClick={() => setSelectedScan(null)}
+                aria-label="Close modal"
               >
-                ✖
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-              <h2 className="text-xl font-bold mb-2 break-all">{selectedScan.url}</h2>
-              <p><strong>Verdict:</strong> {selectedScan.verdict}</p>
-              <p><strong>Heuristics Score:</strong> {selectedScan.heuristicsScore ?? '—'}</p>
-              <p><strong>ML Score:</strong> {selectedScan.mlScore ?? '—'}</p>
-              <p><strong>Timestamp:</strong> {selectedScan.createdAt ? new Date(selectedScan.createdAt).toLocaleString() : '—'}</p>
-              <p><strong>Is Phishing:</strong> {['phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'Yes' : 'No'}</p>
+
+              {/* Header with verdict-based coloring */}
+              <div className={`px-6 pt-6 pb-4 ${['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'bg-red-50' : 'bg-emerald-50'}`}>
+                <h2 className="text-2xl font-bold text-slate-900 break-all pr-10">{selectedScan.url}</h2>
+                <div className="flex items-center mt-2">
+                  <div className={`w-4 h-4 rounded-full mr-2 ${['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+                  <span className={`text-lg font-semibold ${['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'text-red-700' : 'text-emerald-700'}`}>
+                    {['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? '⚠️ Suspicious / Phishing' : '✅ Safe'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Body with grid layout for details */}
+              <div className="px-6 pb-6 space-y-4">
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <strong className="text-slate-600">Verdict:</strong>
+                    <span className="font-medium text-slate-900">{selectedScan.verdict ?? '—'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <strong className="text-slate-600">Heuristics Score:</strong>
+                    <span className="font-medium text-slate-900">{selectedScan.heuristicsScore ? (selectedScan.heuristicsScore * 100).toFixed(1) + '%' : '—'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <strong className="text-slate-600">ML Score:</strong>
+                    <span className="font-medium text-slate-900">{selectedScan.mlScore ? (selectedScan.mlScore * 100).toFixed(1) + '%' : '—'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <strong className="text-slate-600">Confidence:</strong>
+                    <span className="font-medium text-slate-900">
+                      {selectedScan.mlScore && selectedScan.heuristicsScore 
+                        ? ((selectedScan.mlScore + selectedScan.heuristicsScore) / 2 * 100).toFixed(1) + '%' 
+                        : selectedScan.mlScore 
+                          ? (selectedScan.mlScore * 100).toFixed(1) + '%' 
+                          : selectedScan.heuristicsScore 
+                            ? (selectedScan.heuristicsScore * 100).toFixed(1) + '%' 
+                            : '—'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <strong className="text-slate-600">Timestamp:</strong>
+                    <span className="font-medium text-slate-900">{selectedScan.createdAt ? new Date(selectedScan.createdAt).toLocaleString() : '—'}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <strong className="text-slate-600">Is Phishing:</strong>
+                    <span className={`font-bold ${['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'text-red-600' : 'text-emerald-600'}`}>
+                      {['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Optional: Add a note or tip */}
+                {['suspicious', 'su', 'phishing', 'malicious'].includes(selectedScan.verdict?.toLowerCase()) && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                    <strong>Security Tip:</strong> Avoid entering personal information on suspicious sites. Always verify the URL and look for HTTPS.
+                  </div>
+                )}
+              </div>
+
+              {/* Footer with action button */}
+              <div className="px-6 pb-6 flex justify-end">
+                <a href="/scan" className="btn btn-primary btn-sm">
+                  Rescan URL
+                </a>
+              </div>
             </div>
           </div>
         )}
