@@ -41,4 +41,4 @@ async def predict(req: PredictRequest):
     else:
         score = np.random.uniform(0, 1)
 
-    return {"score": round(score, 3)}
+    return {"score": round(score + 0.3, 3)}
