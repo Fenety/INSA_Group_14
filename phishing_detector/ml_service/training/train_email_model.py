@@ -1,4 +1,4 @@
-# train_email_model.py
+
 import os
 import json
 import numpy as np
@@ -12,7 +12,7 @@ DATA_PATH = "data/emails.csv"
 CHAR_INDEX_PATH = "models/email_char_index.json"
 SAVED_MODEL_DIR = "models/email_saved_model"
 H5_PATH = "models/email_model.h5"
-MAXLEN = 200                # sequence length to pad/truncate to
+MAXLEN = 200               
 EMBED_DIM = 128
 BATCH_SIZE = 64
 EPOCHS = 15
@@ -49,11 +49,10 @@ def load_dataset(path=DATA_PATH):
     texts, labels = [], []
     with open(path, newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
-        # If there is a header like text,label, skip it
+        
         first = next(reader)
-        # Detect header
         if len(first) >= 2 and (first[0].lower().startswith("text") or first[1].lower().startswith("label")):
-            pass  # header consumed
+            pass  
         else:
             # first row was actual data
             texts.append(first[0])
@@ -165,10 +164,10 @@ history = model.fit(
 
 # ---- Save model as SavedModel (best for serving) ----------------------------
 print("Saving SavedModel to", SAVED_MODEL_DIR)
-model.export(SAVED_MODEL_DIR)   # ✅ Correct way in Keras 3
+model.export(SAVED_MODEL_DIR)   
 
 # Also save final H5 (ModelCheckpoint already saved best H5)
-model.save(H5_PATH)  # ✅ still valid for H5 format
+model.save(H5_PATH) 
 
 # ---- Evaluate on test set ---------------------------------------------------
 print("Evaluating on test set...")

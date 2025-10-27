@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ./phishing-detection-frontend
+      cache_from:
+        - phishing-frontend:latest  # Use cache if available
+    container_name: phishing-frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    networks:
+      - phishing-net
+
+  backend:
+    build:
+      context: ./backend
+      cache_from:
+        - phishing-backend:latest
+    container_name: phishing-backend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      ML_API_URL: http://ml:8000
+      MONGO_URI: mongodb://mongo:27017/phishdetect
+    depends_on:
+      - ml
+      - mongo
+    networks:
+      - phishing-net
+
+  ml:
+    build:
+      context: ./ml_service
+      cache_from:
+        - phishing-ml:latest
+    container_name: phishing-ml
+    ports:
+      - "8000:8000"
+    networks:
+      - phishing-net
+    # optional restart policy for reliability
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    container_name: phishing-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - phishing-net
+    restart: unless-stopped
+
+networks:
+  phishing-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
